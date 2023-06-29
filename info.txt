@@ -1,0 +1,22 @@
+How the Program Works
+1.	It starts by initializing an empty list combinations which will hold the final output.
+2.	It then iterates through each row of the products_df DataFrame using the iterrows() function. This function returns both the index of the row and the row itself as a Series.
+3.	For each row, it extracts various product properties like PRODUCT NAME, SKU #, PRODUCT #, COLORS, SIZES, and PRICE.
+4.	COLORS and SIZES are expected to be strings of values separated by | symbol, so it uses the split('|') method to create a list of colors and sizes.
+5.	It uses itertools.product() function to generate all possible pairs of COLORS and SIZES. For example, if COLORS is ['Red', 'Blue'] and SIZES is ['Small', 'Medium'], then the generated combinations would be [('Red', 'Small'), ('Red', 'Medium'), ('Blue', 'Small'), ('Blue', 'Medium')].
+6.	For each color-size combination, it creates a unique ID by concatenating SKU #, PRODUCT #, an abbreviation of the color, and the size, separated by underscores. The length of this ID is then ensured to be no longer than 44 characters.
+7.	A dictionary is created with fields for the parent product, SKU, product number, ID, status, SKU (with possible abbreviation), count of characters in the SKU, whether the product is downloadable or virtual, stock status, regular price, visibility, color, and size.
+8.	This dictionary is appended to the combinations list.
+9.	Once all rows in the DataFrame have been processed, the function returns the combinations list which now contains all possible product variations as individual dictionaries.
+
+
+After all the combinations are stored in the list.
+
+1.A try-except block is opened. If an exception of type FileNotFoundError occurs anywhere in this block, the corresponding message "File could not be opened" will be printed.
+2.	The script tries to read an Excel file located at 'C:/testing/Book1_.xlsx' into a pandas DataFrame products_df. The header=6 argument means that it considers the 7th row of the Excel sheet as the header row.
+3.	If the Excel file is read successfully, it prints "Excel file loaded successfully." Then it prints the column names of the DataFrame.
+4.	It then passes products_df to the generate_combinations function, which generates all possible combinations of product variants as explained before.
+5.	These combinations are then converted back to a pandas DataFrame df.
+6.	A nested try-except block is opened. If an exception of type PermissionError occurs, it means that the file is open in some other program, and thus not writable. If an exception of type FileNotFoundError occurs, it means that the directory where the script is trying to save the file does not exist. Any other type of exception will also be caught and its message printed.
+7.	The script attempts to write df to an Excel file named 'variations.xlsx' located at 'C:/testing/'. The index=False argument is used to prevent pandas from writing row indices into the Excel file.
+8.	If everything goes as expected, the variations of products will be saved in an Excel file. If not, an error message will be printed.
