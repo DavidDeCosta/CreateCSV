@@ -1,22 +1,47 @@
-How the Program Works
-1.	It starts by initializing an empty list combinations which will hold the final output.
-2.	It then iterates through each row of the products_df DataFrame using the iterrows() function. This function returns both the index of the row and the row itself as a Series.
-3.	For each row, it extracts various product properties like PRODUCT NAME, SKU #, PRODUCT #, COLORS, SIZES, and PRICE.
-4.	COLORS and SIZES are expected to be strings of values separated by | symbol, so it uses the split('|') method to create a list of colors and sizes.
-5.	It uses itertools.product() function to generate all possible pairs of COLORS and SIZES. For example, if COLORS is ['Red', 'Blue'] and SIZES is ['Small', 'Medium'], then the generated combinations would be [('Red', 'Small'), ('Red', 'Medium'), ('Blue', 'Small'), ('Blue', 'Medium')].
-6.	For each color-size combination, it creates a unique ID by concatenating SKU #, PRODUCT #, an abbreviation of the color, and the size, separated by underscores. The length of this ID is then ensured to be no longer than 44 characters.
-7.	A dictionary is created with fields for the parent product, SKU, product number, ID, status, SKU (with possible abbreviation), count of characters in the SKU, whether the product is downloadable or virtual, stock status, regular price, visibility, color, and size.
-8.	This dictionary is appended to the combinations list.
-9.	Once all rows in the DataFrame have been processed, the function returns the combinations list which now contains all possible product variations as individual dictionaries.
+HOW THE PROGRAM WORKS
+
+1. Load the Excel file:
+The pandas library's read_excel function is used to read the Excel file bookForTesting.xlsx located in C:/testing/. The file's content is 
+stored in the products_df DataFrame.
+
+2. Generate combinations:
+the generate_combinations function is called with the products_df DataFrame. This function generates combinations 
+of product variations based on the product's attributes such as color, logo color, and location.
+Let's break down the generate_combinations function:
+a) It loops through each row in the products_df DataFrame. For each product (each row), it extracts the post_title (product name), 
+sku (parent SKU), regular_price, attribute:pa_color (colors), AbbrLogoColor (abbreviated logo colors), attribute:pa_logo (logo colors), 
+AbbrLocation (abbreviated location), and attribute:pa_location (locations).
+b) The color, logo color, and location attributes may contain multiple values separated by a pipe (|). 
+These are split into separate items using the split function.
+c) The function then uses Python's built-in zip function to create pairs of each color, logo color, and location (abbreviated and long forms).
+d) The itertools product function is used to generate all possible combinations of color, logo color, and location pairs.
+e) For each combination, a dictionary is created representing a product variation. The variation includes attributes such as 
+post_title, parent_sku, ID, sku, BC Count, regular_price, and meta:attribute_pa_*.
+f) The product variation is then added to the combinations list.
+
+3. Writing combinations to Excel file:
+The list of combinations is converted into a DataFrame df and written to the Excel file variationsForHope.xlsx using the to_excel 
+function. If there are any errors during the write operation (like PermissionError or FileNotFoundError), they are caught and an 
+appropriate message is printed.
+
+4. Important functions:
+Two helper functions are used in this program:
+a) abbreviate_color(color): This function takes a color string as input, removes all vowels from it, and returns the resultant string.
+b) truncate_id_sections(id, delimiter='-'): This function takes an SKU ID string and a delimiter as input. The function is used to 
+truncate the ID sections if the total length of the ID is more than 42 characters.
+Note: In the current implementation, the function zips together tuples of the same attribute values (color with color, abbreviated 
+color with long color form, etc.). However, if there's a need to create pairs of different attributes 
+(for instance, color with abbreviated color), the zip function can be modified accordingly. Also, the itertools.product function is used 
+to generate combinations from the tuples. For instance, if we have 2 colors, 3 locations, and 2 logo colors, it would generate 232=12 combinations.
 
 
-After all the combinations are stored in the list.
+IN SUMMARIZED FORM
 
-1.A try-except block is opened. If an exception of type FileNotFoundError occurs anywhere in this block, the corresponding message "File could not be opened" will be printed.
-2.	The script tries to read an Excel file located at 'C:/testing/Book1_.xlsx' into a pandas DataFrame products_df. The header=6 argument means that it considers the 7th row of the Excel sheet as the header row.
-3.	If the Excel file is read successfully, it prints "Excel file loaded successfully." Then it prints the column names of the DataFrame.
-4.	It then passes products_df to the generate_combinations function, which generates all possible combinations of product variants as explained before.
-5.	These combinations are then converted back to a pandas DataFrame df.
-6.	A nested try-except block is opened. If an exception of type PermissionError occurs, it means that the file is open in some other program, and thus not writable. If an exception of type FileNotFoundError occurs, it means that the directory where the script is trying to save the file does not exist. Any other type of exception will also be caught and its message printed.
-7.	The script attempts to write df to an Excel file named 'variations.xlsx' located at 'C:/testing/'. The index=False argument is used to prevent pandas from writing row indices into the Excel file.
-8.	If everything goes as expected, the variations of products will be saved in an Excel file. If not, an error message will be printed.
+This Python program's main job is to create product variations from an Excel spreadsheet. Each product has different attributes 
+like colors, logo colors, and locations, each of which might have several possible values. These attributes' different combinations produce 
+various versions of a product.
+To find all the possible versions, the program reads each product's details from the Excel file, creates pairs of each attribute value, 
+then uses a method to combine them. It also abbreviates colors by removing vowels and shortens SKU IDs if they get too long.
+After all these steps, it generates an extensive list of product variations, each uniquely identified by its attributes, and writes 
+this list back into a new Excel file. The program handles any file-related errors such as the inability to write to a file or a 
+file not being found. In essence, it automates the process of creating multiple versions of a product based on varying attributes.
